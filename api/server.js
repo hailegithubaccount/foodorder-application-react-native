@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import foodRoutes from './routes/insertfood.js'; 
-import fetchRoutes from './routes/fetchfood.js';// Adjust the path as necessary
+import fetchRoutes from './routes/fetchfood.js';
+import orderRoutes from './routes/orderfood.js'; 
+import fetchorder from './routes/fetchorder.js'
 
 const app = express(); // Initialize the Express application
 
@@ -13,6 +15,9 @@ const PORT = 5000; // Define the port for the server
 // Use the routes defined in insertfood.js
 app.use('/api', foodRoutes);
 app.use('/api', fetchRoutes);
+app.use('/api', orderRoutes);
+app.use('/api', fetchorder);
+
 
 // MongoDB connection string
 const mongoURI = "mongodb+srv://order:order@cluster0.1txir.mongodb.net/"; // Replace with your actual database name

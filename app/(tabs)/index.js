@@ -56,8 +56,13 @@ export default function App() {
             
             
             <View>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/explore')}>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/cover')}>
                 <Text style={{ color: 'blue', marginTop: 20 }}>Go to Explore</Text>
+            </TouchableOpacity>
+        </View>
+        <View>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/orderdfood')}>
+                <Text style={{ color: 'blue', marginTop: 20 }}>food</Text>
             </TouchableOpacity>
         </View>
         </View>
