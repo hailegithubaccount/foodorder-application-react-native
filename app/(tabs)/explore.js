@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, Image, TouchableOpacity, StyleSheet, ScrollView, Button } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
-
+import Icon from 'react-native-vector-icons/FontAwesome'; // Import Icon library
 
 const burgerImage = require('../../assets/images/dd.png');
 const pastaImage = require('../../assets/images/dd.png');
 const pizzaImage = require('../../assets/images/dd.png');
 
-// Import your local images
+// Component Definition
 export default function FoodList() {
     const [foods, setFoods] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -22,7 +22,7 @@ export default function FoodList() {
         setError('');
         try {
             const response = await axios.get(`http://10.141.221.60:5000/api/foods/name/${foodName}`);
-            setFoods(response.data); // Assuming the API returns an array of food objects
+            setFoods(response.data);
         } catch (error) {
             setError('Error fetching food items');
             console.error(error);
@@ -32,33 +32,27 @@ export default function FoodList() {
     };
 
     // Handle the "Order" button click to send order to the backend
-   // Handle the "Order" button click to send order to the backend
-   const handleOrder = async (food) => {
-    console.log('Order clicked:', food);
-    
-    // Prepare the order data with only the foodItemId
-    const orderData = {
-        foodItemId: food._id, // Send the food item ID to reference the correct food
+    const handleOrder = async (food) => {
+        console.log('Order clicked:', food);
+
+        const orderData = {
+            foodItemId: food._id,
+        };
+
+        try {
+            const response = await axios.post('http://10.141.221.60:5000/api/orders', orderData);
+            console.log('Order placed successfully:', response.data);
+
+            router.push({
+                pathname: '/explore',
+                query: { ...response.data },
+            });
+
+        } catch (error) {
+            console.error('Error placing order:', error);
+            setError('Failed to place order');
+        }
     };
-
-    try {
-        // Send the order data to the backend
-        const response = await axios.post('http://10.141.221.60:5000/api/orders', orderData);
-        console.log('Order placed successfully:', response.data);
-        
-        // Redirect to OrderFood page with order details (optional)
-        router.push({
-            pathname: '/orderfood',
-            query: { ...response.data }, // Redirecting with the response data, which contains the order details
-        });
-
-    } catch (error) {
-        console.error('Error placing order:', error);
-        setError('Failed to place order');
-    }
-};
-
-
 
     const foodItems = [
         { name: 'jjj', imageUrl: burgerImage },
@@ -68,22 +62,37 @@ export default function FoodList() {
 
     return (
         <View style={styles.container}>
+
+            {/* Header with Profile Image and Back Button */}
             <View style={styles.header}>
                 <Image
                     style={styles.profileImage}
                     source={{ uri: 'https://i.pinimg.com/736x/ca/60/3a/ca603a4e3c6d703be9f80135de170a4c.jpg' }}
                 />
-            </View>
+                <TouchableOpacity 
+                    onPress={() => router.push('/(tabs)/orderdfood')}
+                    style={styles.backButton} // Added styling for better touch area
+                >
+                   
+                    <Text>your order</Text>
+                    
+                </TouchableOpacity>
+                <Text style={{
 
+                }}>your order</Text>
+            </View>
+            
+            {/* Loading and Error Messages */}
             {loading && <Text>Loading...</Text>}
             {error && <Text>{error}</Text>}
 
+            {/* Horizontal ScrollView with Food Options */}
             <ScrollView horizontal>
                 <View style={styles.imageContainer}>
                     {foodItems.map((food) => (
                         <TouchableOpacity
                             key={food.name}
-                            onPress={() => fetchFoodByName(food.name)} // Fetch food by name when clicked
+                            onPress={() => fetchFoodByName(food.name)}
                             style={styles.imageWrapper}
                         >
                             <Image source={food.imageUrl} style={styles.image} />
@@ -93,26 +102,25 @@ export default function FoodList() {
                 </View>
             </ScrollView>
 
+            {/* List of Food Items */}
             <FlatList
                 data={foods}
-                keyExtractor={(item) => item._id} // Assuming your Food model has an _id field
+                keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
                     <View style={styles.itemContainer}>
                         <Image source={{ uri: item.imageUrl }} style={styles.image} />
                         <Text style={styles.name}>{item.name}</Text>
                         <Text style={styles.price}>${item.price}</Text>
                         <Text style={styles.stock}>{item.inStock ? 'In Stock' : 'Out of Stock'}</Text>
-
-                        {/* Order Button */}
                         <Button
                             title="Order"
-                            onPress={() => handleOrder(item)} // Pass the entire item to handleOrder
+                            onPress={() => handleOrder(item)}
                         />
                     </View>
                 )}
-                numColumns={2} // Display items in 2 columns
-                columnWrapperStyle={styles.columnWrapper} // Style for the columns
-                contentContainerStyle={styles.listContainer} // Style for the FlatList
+                numColumns={2}
+                columnWrapperStyle={styles.columnWrapper}
+                contentContainerStyle={styles.listContainer}
             />
 
             {/* Display Order Details if an order has been placed */}
@@ -134,25 +142,37 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     header: {
+        flexDirection: 'row',
+        gap:180,
+        alignItems: 'center',
         marginTop: 20,
-        borderWidth: 1,
-        borderColor: 'yellow',
-        width: 'auto',
-        height: 100,
+        padding: 10,
         backgroundColor: '#BA8E23',
+        borderRadius: 8,
+
+    },
+    backButton: {
+       
+        padding: 10,
+        border:2,
+        borderWidth:2,
+        borderRadius:50,
+        width:100,
+        marginRight:20,
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:'yellow'
+
+
+         // Adjust for better touchability
     },
     profileImage: {
-        marginLeft: 20,
-        marginTop: 20,
-        borderWidth: 2,
         width: 70,
         height: 70,
-        position: 'absolute',
-        borderRadius: 50,
+        borderRadius: 35,
     },
     imageContainer: {
         flexDirection: 'row',
-        flexWrap: 'wrap',
         justifyContent: 'center',
         marginVertical: 20,
     },
@@ -164,7 +184,6 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        marginBottom: 5,
     },
     imageText: {
         textAlign: 'center',
@@ -175,9 +194,10 @@ const styles = StyleSheet.create({
         flex: 1,
         margin: 10,
         alignItems: 'center',
-        borderWidth: 2,
-        width: 300,
-        height: 200,
+        padding: 15,
+        borderRadius: 8,
+        backgroundColor: '#fff',
+        elevation: 2,
     },
     columnWrapper: {
         justifyContent: 'space-between',
@@ -186,7 +206,6 @@ const styles = StyleSheet.create({
         paddingBottom: 20,
     },
     name: {
-        marginTop: 10,
         fontSize: 18,
         fontWeight: 'bold',
     },
@@ -209,7 +228,6 @@ const styles = StyleSheet.create({
     foodName: {
         fontSize: 18,
         fontWeight: 'bold',
-        marginTop: 10,
     },
     foodPrice: {
         fontSize: 16,

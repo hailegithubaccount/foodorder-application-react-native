@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, Button } from 'react-native';
+import { View, Text, FlatList, Image, StyleSheet, Button, Alert,TouchableOpacity } from 'react-native';
 import axios from 'axios';
-
+import arrowleft from 'react-native-vector-icons/AntDesign'
+import { useRouter } from 'expo-router';
+import Icon from 'react-native-vector-icons/FontAwesome';
 const OrderedFood = () => {
+  const router =useRouter();
   const [orders, setOrders] = useState([]);
   const [error, setError] = useState(null);
+  
 
   // Fetch the orders when the component mounts
   useEffect(() => {
@@ -19,12 +23,37 @@ const OrderedFood = () => {
     };
 
     fetchOrders(); // Call the function to fetch orders
-  }, []); // Empty array ensures it runs only once after the first render
+  }, []); 
+// Empty array ensures it runs only once after the first render
+
+  // Local delete function to remove order from the list
+  const deleteOrder = (orderId) => {
+    // Update the orders state by removing the selected order
+    setOrders((prevOrders) => prevOrders.filter((order) => order._id !== orderId));
+    Alert.alert('Deleted', 'Order has been removed from the list.');
+  };
 
   // Render the orders data
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Ordered Food</Text>
+      <View style={{flexDirection:'row',flexWrap:'wrap',gap:100}}>
+        <View>
+        <TouchableOpacity 
+      onPress={()=>router.push('/(tabs)/explore')}
+      >
+         <Icon name="arrow-left" size={24} color="black" />
+      </TouchableOpacity>
+
+        </View>
+
+
+       <View>
+       <Text style={styles.header}>Ordered Food</Text>
+       </View>
+   
+
+      </View>
+    
 
       {/* Display error message if there's an error */}
       {error && <Text style={styles.error}>{error}</Text>}
@@ -49,6 +78,13 @@ const OrderedFood = () => {
               {/* Display order date */}
               <Text style={styles.orderDate}>Ordered on: {new Date(item.orderDate).toLocaleString()}</Text>
             </View>
+
+            {/* Delete button */}
+            <Button
+              title="Delete"
+              color="red"
+              onPress={() => deleteOrder(item._id)}
+            />
           </View>
         )}
       />
@@ -62,6 +98,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: '#f8f8f8',
+    marginTop:20,
   },
   header: {
     fontSize: 24,
@@ -75,6 +112,7 @@ const styles = StyleSheet.create({
   },
   orderItem: {
     flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 16,
     backgroundColor: '#fff',
     padding: 12,
@@ -92,7 +130,7 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   details: {
-    justifyContent: 'center',
+    flex: 1,
   },
   foodName: {
     fontSize: 18,
